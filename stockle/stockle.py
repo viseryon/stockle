@@ -4,7 +4,7 @@ import pynecone as pc
 from stockle import helpers
 from datetime import datetime as dt
 import plotly.express as px
-import plotly
+import plotly.graph_objs as go
 import pandas as pd
 import random
 
@@ -76,7 +76,7 @@ class State(pc.State):
         return pd.DataFrame({'x': self.chart_x, 'y': self.chart_y})
 
     @pc.var
-    def main_chart(self) -> plotly.graph_objs._figure.Figure:
+    def main_chart(self) -> go.Figure:
         fig = px.line(
             self.chart_data,
             x='x',
