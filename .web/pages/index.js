@@ -3,6 +3,7 @@ import {useRouter} from "next/router"
 import {E, connect, isTrue, updateState, uploadFiles} from "/utils/state"
 import "focus-visible/dist/focus-visible"
 import {Box, Button, Center, Divider, Grid, GridItem, HStack, Heading, Image, Input, Link, Spacer, Text, VStack, useColorMode} from "@chakra-ui/react"
+import ReactConfetti from "react-confetti"
 import NextLink from "next/link"
 import NextHead from "next/head"
 import dynamic from 'next/dynamic'
@@ -12,7 +13,7 @@ const PING = "http://localhost:8000/ping"
 const EVENT = "ws://localhost:8000/event"
 const UPLOAD = "http://localhost:8000/upload"
 export default function Component() {
-const [state, setState] = useState({"all_guesses": ["", "", "", "", ""], "ceo": "", "chart_data": {"columns": ["x", "y"], "data": []}, "chart_data_downloaded": false, "chart_x": [], "chart_y": [], "city": "", "data_downloaded": false, "end_screen": false, "get_daily_ticker": {}, "guessed_ticker": "", "guesses": 0, "industry": "", "inp_guess": "", "is_hydrated": false, "main_chart": [{"customdata": [], "hovertemplate": "%{customdata[0]:.2f} USD", "legendgroup": "", "line": {"color": "#ffba32", "dash": "solid", "width": 3}, "marker": {"symbol": "circle"}, "mode": "lines", "name": "", "orientation": "v", "showlegend": false, "x": [], "xaxis": "x", "y": [], "yaxis": "y", "type": "scatter", "hoverlabel": {"font": {"color": "white", "size": 20}, "bgcolor": "#1a1a1a", "bordercolor": "#ffba32"}}], "mkt_cap": "", "name": "", "rev": "", "ticker": "", "ticker_downloaded": false, "ticker_in_sp100": true, "events": [{"name": "state.hydrate"}], "files": []})
+const [state, setState] = useState({"all_guesses": ["", "", "", "", ""], "ceo": "", "chart_data": {"columns": ["x", "y"], "data": []}, "chart_data_downloaded": false, "chart_x": [], "chart_y": [], "city": "", "data_downloaded": false, "end_screen": false, "get_daily_ticker": {}, "guessed_ticker": "", "guesses": 0, "industry": "", "inp_guess": "", "is_hydrated": false, "main_chart": [{"customdata": [], "hovertemplate": "%{customdata[0]:.2f} USD", "legendgroup": "", "line": {"color": "#ffba32", "dash": "solid", "width": 3}, "marker": {"symbol": "circle"}, "mode": "lines", "name": "", "orientation": "v", "showlegend": false, "x": [], "xaxis": "x", "y": [], "yaxis": "y", "type": "scatter", "hoverlabel": {"font": {"color": "white", "size": 20}, "bgcolor": "#1a1a1a", "bordercolor": "#ffba32"}}], "mkt_cap": "", "name": "", "rev": "", "show_confetti": false, "ticker": "", "ticker_downloaded": false, "ticker_in_sp100": true, "events": [{"name": "state.hydrate"}], "files": []})
 const [result, setResult] = useState({"state": null, "events": [], "processing": false})
 const router = useRouter()
 const socket = useRef(null)
@@ -51,7 +52,8 @@ useEffect(() => {
 })
 
 return (
-<Center sx={{"margin": "10px 0px 0px 0px", "spacing": "0.5em"}}><VStack spacing="0.5em"
+<Center sx={{"margin": "10px 0px 0px 0px", "spacing": "0.5em", "width": "100%"}}><Fragment>{isTrue(state.show_confetti) ? <Fragment><ReactConfetti/></Fragment> : <Fragment/>}</Fragment>
+<VStack spacing="0.5em"
 sx={{"width": "80%"}}><Box sx={{"width": "100%", "backgroundColor": "#1a1a1a", "borderRadius": "15px", "borderColor": "white", "borderWidth": "thin", "padding": 2.5}}><HStack><Image src="/market.png"
 sx={{"height": "64px", "width": "64px"}}/>
 <Heading size="3xl"
