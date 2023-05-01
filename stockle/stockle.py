@@ -4,7 +4,7 @@ import pynecone as pc
 from stockle import helpers
 from datetime import datetime as dt
 import plotly.express as px
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 import pandas as pd
 import random
 
