@@ -12,15 +12,6 @@ docs_url = "https://pynecone.io/docs/getting-started/introduction"
 filename = f"{config.app_name}/{config.app_name}.py"
 
 
-class Confetti(pc.Component):
-    """Confetti component."""
-
-    library = "react-confetti"
-    tag = "ReactConfetti"
-
-
-confetti = Confetti.create
-
 class State(pc.State):
 
     ticker: str
@@ -45,7 +36,6 @@ class State(pc.State):
     guesses: int = 0
 
     end_screen: bool = False
-    show_confetti: bool = False
 
     def make_inp_guess(self):
 
@@ -70,22 +60,12 @@ class State(pc.State):
         if self.guessed_ticker == self.ticker:
             self.end_screen = True
             print('GAME OVER', 'YOU WIN')
-            return self.start_confetti
+            return 
 
         if self.guesses == 5:
             print('GAME OVER', 'YOU LOSE')
             self.end_screen = True
             return
-
-    def start_confetti(self):
-        """Start the confetti."""
-        self.show_confetti = True
-        return self.stop_confetti
-
-    async def stop_confetti(self):
-        """Stop the confetti."""
-        await asyncio.sleep(5)
-        self.show_confetti = False
 
 
 
@@ -426,10 +406,6 @@ def answer() -> pc.component:
 
 def main_page():
     return pc.center(
-        pc.cond(
-            State.show_confetti,
-            confetti(),
-        ),
         pc.vstack(
             navbar(),
             pc.hstack(

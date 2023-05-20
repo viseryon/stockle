@@ -7,6 +7,5 @@ config = StockleConfig(
     app_name="stockle",
     db_url="sqlite:///pynecone.db",
     env=pc.Env.DEV,
-    frontend_packages=["react-confetti"],
     bun_path="$HOME/.bun/bin/bun",
 )

@@ -2,12 +2,17 @@
 import axios from "axios";
 import io from "socket.io-client";
 import JSON5 from "json5";
+import config from "../pynecone.json";
 
+const UPLOAD = config.uploadUrl;
 // Global variable to hold the token.
 let token;
 
 // Key for the token in the session storage.
 const TOKEN_KEY = "token";
+
+// Dictionary holding component references.
+export const refs = {};
 
 /**
  * Generate a UUID (Used for session tokens).
@@ -90,6 +95,13 @@ export const applyEvent = async (event, router, socket) => {
     return false;
   }
 
+  if (event.name == "_set_value") {
+    const ref =
+      event.payload.ref in refs ? refs[event.payload.ref] : event.payload.ref;
+    ref.current.value = event.payload.value;
+    return false;
+  }
+
   // Send the event to the server.
   event.token = getToken();
   event.router_data = (({ pathname, query }) => ({ pathname, query }))(router);
@@ -99,6 +111,18 @@ export const applyEvent = async (event, router, socket) => {
   }
 
   return false;
+};
+
+/**
+ * Process an event off the event queue.
+ * @param queue_event The current event
+ * @param state The state with the event queue.
+ * @param setResult The function to set the result.
+ */
+export const applyRestEvent = async (queue_event, state, setResult) => {
+  if (queue_event.handler == "uploadFiles") {
+    await uploadFiles(state, setResult, queue_event.name, UPLOAD);
+  }
 };
 
 /**
@@ -127,16 +151,19 @@ export const updateState = async (
   setResult({ ...result, processing: true });
 
   // Pop the next event off the queue and apply it.
-  const event = state.events.shift();
-
+  const queue_event = state.events.shift();
   // Set new events to avoid reprocessing the same event.
   setState({ ...state, events: state.events });
 
-  // Apply the event.
-  const eventSent = await applyEvent(event, router, socket);
-  if (!eventSent) {
-    // If no event was sent, set processing to false and return.
-    setResult({ ...state, processing: false });
+  // Process events with handlers via REST and all others via websockets.
+  if (queue_event.handler) {
+    await applyRestEvent(queue_event, state, setResult);
+  } else {
+    const eventSent = await applyEvent(queue_event, router, socket);
+    if (!eventSent) {
+      // If no event was sent, set processing to false and return.
+      setResult({ ...state, processing: false });
+    }
   }
 };
 
@@ -191,26 +218,16 @@ export const connect = async (
  *
  * @param state The state to apply the delta to.
  * @param setResult The function to set the result.
- * @param files The files to upload.
  * @param handler The handler to use.
- * @param multiUpload Whether handler args on backend is multiupload
  * @param endpoint The endpoint to upload to.
  */
-export const uploadFiles = async (
-  state,
-  result,
-  setResult,
-  files,
-  handler,
-  endpoint
-) => {
-  // If we are already processing an event, or there are no upload files, return.
-  if (result.processing || files.length == 0) {
+export const uploadFiles = async (state, setResult, handler, endpoint) => {
+  const files = state.files;
+
+  // return if there's no file to upload
+  if (files.length == 0) {
     return;
   }
-
-  // Set processing to true to block other events from being processed.
-  setResult({ ...result, processing: true });
 
   const headers = {
     "Content-Type": files[0].type,
@@ -219,7 +236,11 @@ export const uploadFiles = async (
 
   // Add the token and handler to the file name.
   for (let i = 0; i < files.length; i++) {
-    formdata.append("files", files[i], getToken() + ":" + handler + ":" + files[i].name);
+    formdata.append(
+      "files",
+      files[i],
+      getToken() + ":" + handler + ":" + files[i].name
+    );
   }
 
   // Send the file to the server.
@@ -241,12 +262,13 @@ export const uploadFiles = async (
  * Create an event object.
  * @param name The name of the event.
  * @param payload The payload of the event.
+ * @param use_websocket Whether the event uses websocket.
+ * @param handler The client handler to process event.
  * @returns The event object.
  */
-export const E = (name, payload) => {
-  return { name, payload };
+export const E = (name, payload = {}, handler = null) => {
+  return { name, payload, handler };
 };
-
 
 /***
  * Check if a value is truthy in python.
@@ -254,5 +276,15 @@ export const E = (name, payload) => {
  * @returns True if the value is truthy, false otherwise.
  */
 export const isTrue = (val) => {
-    return Array.isArray(val) ? val.length > 0 : !!val
-}
+  return Array.isArray(val) ? val.length > 0 : !!val;
+};
+
+/**
+ * Prevent the default event.
+ * @param event
+ */
+export const preventDefault = (event) => {
+  if (event && event.hasOwnProperty("preventDefault")) {
+    event.preventDefault();
+  }
+};
