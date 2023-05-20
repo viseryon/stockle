@@ -130,7 +130,7 @@ export default function Component() {
   {`S&P 100`}
 </Link>
 </NextLink>
-  {`index are included. The S&P 100 Index is a stock market index of United States stocks maintained by Standard & Poor's.`}
+  {` index are included. The S&P 100 Index is a stock market index of United States stocks maintained by Standard & Poor's.`}
 </Text>
   <Text sx={{"color": "white"}}>
   {`Good luck! Have fun!`}
