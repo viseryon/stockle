@@ -275,7 +275,7 @@ def hints_desc() -> pc.component:
                 pc.link('S&P 100', href='https://en.wikipedia.org/wiki/S%26P_100',
                         color='#ffba32'
                         ),
-                "index are included. The S&P 100 Index is a stock market index of United States stocks maintained by Standard & Poor's.",
+                " index are included. The S&P 100 Index is a stock market index of United States stocks maintained by Standard & Poor's.",
                 align='center'
             ),
             pc.text('Good luck! Have fun!'),
